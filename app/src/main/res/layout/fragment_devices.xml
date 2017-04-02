@@ -1,0 +1,54 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.iot.smartplug.smartplug.fragments.DevicesFragment">
+
+    <Button
+        android:text="Adicionar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_add_device"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/scroll_view_devices"
+        android:layout_marginTop="20dip"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="350dip"
+        android:id="@+id/scroll_view_devices">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/table_devices"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
+
+        <TableRow
+            android:background="#607D8B"
+            android:padding="5dip">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Nome"
+                android:textSize="15dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="IP"
+                android:textSize="15dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Função"
+                android:textSize="15dp"/>
+        </TableRow>
+
+    </TableLayout>
+    </ScrollView>
+
+</RelativeLayout>

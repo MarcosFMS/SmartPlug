@@ -7,12 +7,15 @@ import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -28,7 +31,9 @@ import com.iot.smartplug.smartplug.R;
 import com.iot.smartplug.smartplug.activities.AddDeviceActivity;
 import com.iot.smartplug.smartplug.dao.DeviceDAO;
 import com.iot.smartplug.smartplug.dao.SmartplugDbHelper;
+import com.iot.smartplug.smartplug.enums.RequestTypes;
 import com.iot.smartplug.smartplug.model.Device;
+import com.iot.smartplug.smartplug.view.TurnDeviceImageButton;
 
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -42,6 +47,7 @@ public class DevicesFragment extends Fragment {
     private int idServidor = 1;
     private boolean servOn = true;
     SmartplugDbHelper dbHelper;
+    TurnDeviceImageButton imgBtnTurnDeviceAux;
 
     public DevicesFragment() {
         // Required empty public constructor
@@ -61,7 +67,10 @@ public class DevicesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_devices, container, false);
         //Event of the button that adds a new device
-        final Button addButton = (Button) view.findViewById(R.id.btn_add_device);
+        final ImageButton addButton = (ImageButton) view.findViewById(R.id.btn_add_device);
+        addButton.setScaleType(ImageView.ScaleType.CENTER);
+        addButton.setAdjustViewBounds(true);
+        addButton.setBackgroundColor(Color.TRANSPARENT);
         addButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddDeviceActivity.class);
@@ -89,42 +98,87 @@ public class DevicesFragment extends Fragment {
 
             TextView tvNome = new TextView(getActivity());
             tvNome.setText(d.getName());
-            tvNome.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+            tvNome.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 2f));
             tvNome.setTextSize(15);
+            tvNome.setTextAppearance(this.getContext(), R.style.Widget_AppCompat_TextView_SpinnerItem);
             tr.addView(tvNome);
 
-            //create device wifi ip column
-            TextView tvIp = new TextView(getActivity());
-            tvIp.setText(d.getIp());
-            tvIp.setTextSize(15);
-            tvIp.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 2f));
-            tr.addView(tvIp);
-
             //create the button
-            final Button btnTurnDevice = new Button(getActivity());
-            btnTurnDevice.setText("ON");
-            btnTurnDevice.setId(d.getId());
-            btnTurnDevice.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
-            btnTurnDevice.setOnClickListener(new View.OnClickListener() {
+            final TurnDeviceImageButton imgBtnTurnDevice = new TurnDeviceImageButton(getActivity(), d.getId(), d.getIp(), 0);
+            imgBtnTurnDevice.setImageResource(R.drawable.button_off);
+            imgBtnTurnDevice.setId(d.getId());
+            int size = (int) this.getResources().getDimension(R.dimen.dimen_turn_button_in_dp);
+            imgBtnTurnDevice.setLayoutParams(new TableRow.LayoutParams(size, size));
+            imgBtnTurnDevice.setScaleType(ImageView.ScaleType.CENTER);
+            imgBtnTurnDevice.setAdjustViewBounds(true);
+            imgBtnTurnDevice.setBackgroundColor(Color.TRANSPARENT);
+
+            imgBtnTurnDevice.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    if(((Button) v).getText().equals("ON")){
-                        ((Button) v).setText("OFF");
+                    imgBtnTurnDeviceAux = (TurnDeviceImageButton) v;
+                    if(imgBtnTurnDeviceAux.getOn() == 1){
                         turnDevice(v.getId(), false);
                     }else{
-                        ((Button) v).setText("ON");
                         turnDevice(v.getId(), true);
                     }
                 }
             });
-            tr.addView(btnTurnDevice);
+            tr.addView(imgBtnTurnDevice);
 
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
     }
 
     public void turnDevice(int deviceId, boolean on){
-        Toast.makeText(getActivity(), deviceId+" is "+on, Toast.LENGTH_LONG);
         Log.d("device status", deviceId+" is "+on);
+        Device device = new Device();
+        device.setIp(DeviceDAO.getIp(dbHelper, deviceId));
+        device.setOn(on);
+        device.setId(deviceId);
+        getRequest(RequestTypes.GET_TURN_DEVICE, device);
     }
 
+    public void onTurnResponse(String response, boolean ok){
+        Log.d("turndevice", response);
+        if(ok){
+            if(imgBtnTurnDeviceAux.getOn() == 1){
+                imgBtnTurnDeviceAux.setImageResource(R.drawable.button_off);
+                imgBtnTurnDeviceAux.setOn(0);
+            }else{
+                imgBtnTurnDeviceAux.setImageResource(R.drawable.button_on);
+                imgBtnTurnDeviceAux.setOn(1);
+            }
+        }else{
+            Toast.makeText(getActivity(), "Erro de comunicação com dispositivo", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void getRequest(RequestTypes requestType, Device device) {
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(getActivity());
+        if(requestType == RequestTypes.GET_TURN_DEVICE) {
+            String url = "http://"+device.getIp();
+            int on = (device.isOn()) ? 1 : 0;
+            url += "/?turndevice=" + on + "|";
+            Log.d("turn",url);
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET,
+                    url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    onTurnResponse(response, true);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //Caso dê erro
+                    Log.d("error", error.getMessage());
+                    onTurnResponse(error.getMessage(), false);
+                }
+            });
+
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+    }
 }

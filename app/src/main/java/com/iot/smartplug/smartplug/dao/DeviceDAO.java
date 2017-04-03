@@ -84,7 +84,7 @@ public class DeviceDAO {
 
     }
 
-    public static void updateDevice(SmartplugDbHelper dbHelper, Device device){
+    public static void updateDevice(SmartplugDbHelper dbHelper, Device device) {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("name", device.getName());
@@ -96,7 +96,7 @@ public class DeviceDAO {
     }
 
     public static Calendar stringToCalendar(String date) throws ParseException {
-        if(date != null) {
+        if (date != null) {
             String DEFAULT_LOCALE_NAME = "pt";
             String DEFAULT_COUNTRY = "BR";
             Locale DEFAULT_LOCALE = new Locale(DEFAULT_LOCALE_NAME, DEFAULT_COUNTRY);
@@ -109,8 +109,25 @@ public class DeviceDAO {
         return null;
     }
 
+    public static String getIp(SmartplugDbHelper dbHelper, int id) {
+
+        //setup the query to be executed
+        StringBuilder stringBuilderQuery = new StringBuilder();
+        stringBuilderQuery.append("SELECT IP FROM DEVICE WHERE ID = " + id);
+
+        Cursor cursor = dbHelper.getWritableDatabase().rawQuery(stringBuilderQuery.toString(), null);
+        /*Position the cursor on the first register*/
+        cursor.moveToFirst();
+        String ip;
+
+        //Reads until the cursor reaches the final register
+        ip = cursor.getString(cursor.getColumnIndex("IP"));
+
+        return ip;
+}
+
     public static String calendarToString(Calendar calendar) {
-        if(calendar != null) {
+        if (calendar != null) {
             SimpleDateFormat s = new SimpleDateFormat("dd/MM/yyyy hh:mm");
             String a = s.format(calendar.getTime());
             return a;

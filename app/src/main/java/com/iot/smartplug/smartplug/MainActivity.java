@@ -1,30 +1,15 @@
 package com.iot.smartplug.smartplug;
 
-import android.os.AsyncTask;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 
 import com.iot.smartplug.smartplug.adapters.ViewPagerAdapter;
 import com.iot.smartplug.smartplug.fragments.DevicesFragment;
 import com.iot.smartplug.smartplug.fragments.ThreeFragment;
-import com.iot.smartplug.smartplug.fragments.TwoFragment;
-
-import com.iot.smartplug.smartplug.model.TodoItem;
-import com.microsoft.windowsazure.mobileservices.*;
-import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
-import com.microsoft.windowsazure.mobileservices.table.TableOperationCallback;
-
-import java.net.MalformedURLException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import com.iot.smartplug.smartplug.fragments.WebDevicesFragment;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -98,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new DevicesFragment(), "Dispositivos");
-        adapter.addFragment(new TwoFragment(), "TWO");
+        adapter.addFragment(new WebDevicesFragment(), "TWO");
         adapter.addFragment(new ThreeFragment(), "THREE");
         viewPager.setAdapter(adapter);
     }

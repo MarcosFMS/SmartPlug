@@ -58,11 +58,12 @@ public class DeviceDAO {
             device.setId(cursor.getInt(cursor.getColumnIndex("ID")));
             device.setName(cursor.getString(cursor.getColumnIndex("NAME")));
             device.setIp(cursor.getString(cursor.getColumnIndex("IP")));
+            /*
             try {
                 device.setLastTimeoff(stringToCalendar(cursor.getString(cursor.getColumnIndex("LAST_TIMEOFF"))));
             } catch (ParseException e) {
                 e.printStackTrace();
-            }
+            }*/
             device.setOn(Boolean.valueOf(cursor.getString(cursor.getColumnIndex("IS_ON"))));
 
             devices.add(device);
@@ -72,13 +73,32 @@ public class DeviceDAO {
         return devices;
     }
 
+    public static Device selectDevice(SmartplugDbHelper dbHelper, int id){
+        //setup the query to be executed
+        StringBuilder stringBuilderQuery = new StringBuilder();
+        stringBuilderQuery.append("SELECT * FROM DEVICE WHERE ID = " + id);
+
+        Cursor cursor = dbHelper.getWritableDatabase().rawQuery(stringBuilderQuery.toString(), null);
+        /*Position the cursor on the first register*/
+        cursor.moveToFirst();
+        Device d = new Device();
+
+        //Reads until the cursor reaches the final register
+        d.setIp(cursor.getString(cursor.getColumnIndex("IP")));
+        d.setId(cursor.getInt(cursor.getColumnIndex("ID")));
+        d.setOn(cursor.getInt(cursor.getColumnIndex("IS_ON"))==1);
+        d.setName(cursor.getString(cursor.getColumnIndex("NAME")));
+
+        return d;
+    }
+
     public static void insertDevice(SmartplugDbHelper dbHelper, Device device) {
         ContentValues contentValues = new ContentValues();
 
         contentValues.put("name", device.getName());
         contentValues.put("id", device.getId());
         contentValues.put("ip", device.getIp());
-        contentValues.put("last_timeoff", calendarToString(device.getLastTimeoff()));
+        //contentValues.put("last_timeoff", calendarToString(device.getLastTimeoff()));
         contentValues.put("is_on", String.valueOf(device.isOn()));
         dbHelper.getWritableDatabase().insert("DEVICE", null, contentValues);
 
@@ -90,7 +110,7 @@ public class DeviceDAO {
         contentValues.put("name", device.getName());
         contentValues.put("id", device.getId());
         contentValues.put("ip", device.getIp());
-        contentValues.put("last_timeoff", calendarToString(device.getLastTimeoff()));
+        //contentValues.put("last_timeoff", calendarToString(device.getLastTimeoff()));
         contentValues.put("is_on", String.valueOf(device.isOn()));
         dbHelper.getWritableDatabase().update("DEVICE", contentValues, "id = ?", new String[]{String.valueOf(device.getId())});
     }

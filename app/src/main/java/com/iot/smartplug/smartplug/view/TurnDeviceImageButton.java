@@ -1,11 +1,14 @@
 package com.iot.smartplug.smartplug.view;
 
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.widget.ImageButton;
+
+import com.iot.smartplug.smartplug.model.Device;
 
 /**
  * Created by Marcos on 02/04/2017.
@@ -14,39 +17,11 @@ import android.widget.ImageButton;
 @SuppressLint("AppCompatCustomView")
 public class TurnDeviceImageButton extends ImageButton {
 
-    private int deviceId;
-    private String deviceIp;
-    private int on;
+    private Device device;
 
-    public TurnDeviceImageButton(Context context, int deviceId, String deviceIp, int on) {
+    public TurnDeviceImageButton(Context context, Device device) {
         super(context);
-        this.deviceId = deviceId;
-        this.deviceIp = deviceIp;
-        this.on = on;
-    }
-
-    public int getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(int deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public String getDeviceIp() {
-        return deviceIp;
-    }
-
-    public void setDeviceIp(String deviceIp) {
-        this.deviceIp = deviceIp;
-    }
-
-    public int getOn() {
-        return on;
-    }
-
-    public void setOn(int on) {
-        this.on = on;
+        this.device = device;
     }
 
     public TurnDeviceImageButton(Context context, AttributeSet attrs) {
@@ -63,5 +38,13 @@ public class TurnDeviceImageButton extends ImageButton {
     }
 
 
+
+    public Device getDevice() {
+        return device;
+    }
+
+    public void setDevice(Device device) {
+        this.device = device;
+    }
 
 }

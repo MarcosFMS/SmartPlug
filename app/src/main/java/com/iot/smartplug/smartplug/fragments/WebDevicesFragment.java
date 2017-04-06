@@ -1,19 +1,16 @@
 package com.iot.smartplug.smartplug.fragments;
 
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Gravity;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TableLayout;
@@ -21,52 +18,51 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.iot.smartplug.smartplug.R;
 import com.iot.smartplug.smartplug.activities.AddDeviceActivity;
+import com.iot.smartplug.smartplug.activities.AddWebDeviceActivity;
 import com.iot.smartplug.smartplug.dao.DeviceDAO;
 import com.iot.smartplug.smartplug.dao.SmartplugDbHelper;
 import com.iot.smartplug.smartplug.enums.RequestTypes;
 import com.iot.smartplug.smartplug.model.Device;
 import com.iot.smartplug.smartplug.view.TurnDeviceImageButton;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
-import java.util.GregorianCalendar;
+import java.net.MalformedURLException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
-public class DevicesFragment extends Fragment {
+public class WebDevicesFragment extends Fragment {
 
-    /*
-    public static final String TAG_FRAGMENT = "devicesFragment";
-    private String servidor = "http://192.168.4.1/";
-    private int idServidor = 1;
-    private boolean servOn = true;*/
-    SmartplugDbHelper dbHelper;
+
+    private SmartplugDbHelper dbHelper;
     TurnDeviceImageButton imgBtnTurnDeviceAux;
+    private MobileServiceClient mClient;
+    private List<Device> devices;
 
-    public DevicesFragment() {
+    public WebDevicesFragment() {
         // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        try {
+            mClient = new MobileServiceClient("http://smartplug-iot.azurewebsites.net/", getActivity());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        // Inflate the layout for this fragment
         dbHelper = SmartplugDbHelper.getInstance(getContext());
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_devices, container, false);
+        View view = inflater.inflate(R.layout.fragment_web_devices, container, false);
         //Event of the button that adds a new device
         final ImageButton addButton = (ImageButton) view.findViewById(R.id.btn_add_device);
         addButton.setScaleType(ImageView.ScaleType.CENTER);
@@ -74,20 +70,43 @@ public class DevicesFragment extends Fragment {
         addButton.setBackgroundColor(Color.TRANSPARENT);
         addButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), AddDeviceActivity.class);
+                Intent intent = new Intent(getActivity(), AddWebDeviceActivity.class);
                 startActivity(intent);
             }
         });
-        loadDeviceList(view);
+        getDevicesFromAzure(view);
+        //loadDeviceList(view);
         return view;
-
-
     }
 
-    private void loadDeviceList(View view){
+    private void getDevicesFromAzure(final View view) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    devices = mClient.getTable(Device.class).execute().get();
+
+                    for (Device d : devices) {
+                        Log.d("for", d.getName());
+                    }
+                } catch (final Exception e) {
+                    Toast.makeText(getActivity(), "Erro ao acessar servidor", Toast.LENGTH_LONG).show();
+                    devices = new LinkedList<>();
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                loadDeviceList(view);
+            }
+        }.execute();
+    }
+
+    private void loadDeviceList(View view) {
 
         //Load the list of devices
-        List<Device> devices = DeviceDAO.selectAllDevices(dbHelper);
         TableLayout tl = (TableLayout) view.findViewById(R.id.table_devices);
         for (Device d : devices) {
 
@@ -117,10 +136,10 @@ public class DevicesFragment extends Fragment {
             imgBtnTurnDevice.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     imgBtnTurnDeviceAux = (TurnDeviceImageButton) v;
-                    if(imgBtnTurnDeviceAux.getDevice().isOn()){
-                        turnDevice(v.getId(), false);
-                    }else{
-                        turnDevice(v.getId(), true);
+                    if (imgBtnTurnDeviceAux.getDevice().isOn()) {
+                        turnDevice(imgBtnTurnDeviceAux.getDevice());
+                    } else {
+                        turnDevice(imgBtnTurnDeviceAux.getDevice());
                     }
                 }
             });
@@ -130,56 +149,35 @@ public class DevicesFragment extends Fragment {
         }
     }
 
-    public void turnDevice(int deviceId, boolean on){
-        Log.d("device status", deviceId+" is "+on);
-        Device device = new Device();
-        device.setIp(DeviceDAO.getIp(dbHelper, deviceId));
-        device.setOn(on);
-        device.setId(deviceId);
-        getRequest(RequestTypes.GET_TURN_DEVICE, device);
-    }
+    public void turnDevice(final Device device) {
+        final List<Pair<String, String>> parameters = new LinkedList<>();
+        parameters.add(new Pair<>("ON", String.valueOf(device.isOn())));
+        //update button
+        if (imgBtnTurnDeviceAux.getDevice().isOn()) {
+            imgBtnTurnDeviceAux.setImageResource(R.drawable.button_off);
+            imgBtnTurnDeviceAux.getDevice().setOn(false);
+        } else {
+            imgBtnTurnDeviceAux.setImageResource(R.drawable.button_on);
+            imgBtnTurnDeviceAux.getDevice().setOn(true);
+        }
 
-    public void onTurnResponse(String response, boolean ok){
-        Log.d("turndevice", response);
-        if(ok){
-            if(imgBtnTurnDeviceAux.getDevice().isOn()){
-                imgBtnTurnDeviceAux.setImageResource(R.drawable.button_off);
-                imgBtnTurnDeviceAux.getDevice().setOn(false);
-            }else{
-                imgBtnTurnDeviceAux.setImageResource(R.drawable.button_on);
-                imgBtnTurnDeviceAux.getDevice().setOn(true);
+        Log.d("isOn", String.valueOf(device.isOn()));
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+
+                Log.d("onBackground", "started");
+                try {
+                    mClient.getTable(Device.class).update(device, parameters).get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
+                Log.d("onBackground", "finish");
+                return null;
             }
-        }else{
-            Toast.makeText(getActivity(), "Erro de comunicação com dispositivo", Toast.LENGTH_LONG).show();
-        }
+        }.execute();
     }
 
-    public void getRequest(RequestTypes requestType, Device device) {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-        if(requestType == RequestTypes.GET_TURN_DEVICE) {
-            String url = "http://"+device.getIp();
-            int on = (device.isOn()) ? 1 : 0;
-            url += "/?turndevice=" + on + "|";
-            Log.d("turn",url);
-            // Request a string response from the provided URL.
-            StringRequest stringRequest = new StringRequest(Request.Method.GET,
-                    url, new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    onTurnResponse(response, true);
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    //Caso dê erro
-                    Log.d("error", error.getMessage());
-                    onTurnResponse(error.getMessage(), false);
-                }
-            });
-
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest);
-        }
-    }
 }

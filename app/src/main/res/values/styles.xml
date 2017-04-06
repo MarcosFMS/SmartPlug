@@ -13,4 +13,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SmartPlugTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="SmartPlugTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
 </resources>

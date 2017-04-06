@@ -1,9 +1,6 @@
 package com.iot.smartplug.smartplug.model;
 
-import android.text.method.DateTimeKeyListener;
-
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Created by Marcos on 21/03/2017.
@@ -11,26 +8,30 @@ import java.util.Date;
 
 public class Device {
 
-    private int id;
+    private int id_device;
+
+    private String id;
     private String ip;
     private boolean on;
+    /*
     private Calendar lastTimeon;
-    private Calendar lastTimeoff;
+    private Calendar lastTimeoff;*/
     private String name;
 
     public Device(String nome, int id, String ip, boolean on, Calendar lastTimeon, Calendar lastTimeoff) {
         this.name = nome;
-        this.id = id;
+        this.id_device = id;
         this.ip = ip;
         this.on = on;
+        /*
         this.lastTimeon = lastTimeon;
-        this.lastTimeoff = lastTimeoff;
+        this.lastTimeoff = lastTimeoff;*/
     }
 
     public Device() {
     }
 
-
+    /*
     public Calendar getLastTimeoff() {
         return lastTimeoff;
     }
@@ -46,6 +47,7 @@ public class Device {
     public void setLastTimeon(Calendar lastTimeon) {
         this.lastTimeon = lastTimeon;
     }
+    */
 
     public String getName() {
         return name;
@@ -56,11 +58,11 @@ public class Device {
     }
 
     public int getId() {
-        return id;
+        return id_device;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.id_device = id;
     }
 
     public String getIp() {
@@ -79,5 +81,8 @@ public class Device {
         this.on = on;
     }
 
+    public String toString(){
+        return this.getName();
+    }
 
 }

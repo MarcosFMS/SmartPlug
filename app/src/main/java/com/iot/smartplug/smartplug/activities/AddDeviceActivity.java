@@ -28,6 +28,8 @@ import com.iot.smartplug.smartplug.model.Device;
 
 public class AddDeviceActivity extends AppCompatActivity {
 
+
+
     public static final String TAG_FRAGMENT = "devicesFragment";
     private static final int MY_SOCKET_TIMEOUT_MS = 50000;
     private String deviceIp = "http://192.168.4.1/";

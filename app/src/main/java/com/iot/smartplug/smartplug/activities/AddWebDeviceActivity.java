@@ -45,7 +45,7 @@ public class AddWebDeviceActivity extends AppCompatActivity {
 
         loadSpinnerDevices();
 
-        Button btnRegister = (Button) findViewById(R.id.btn_register);
+        FloatingActionButton btnRegister = (FloatingActionButton) findViewById(R.id.btn_register);
         btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Device d = DeviceDAO.selectDevice(dbHelper, selectedId);

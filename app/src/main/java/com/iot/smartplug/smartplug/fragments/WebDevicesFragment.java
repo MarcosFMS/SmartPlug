@@ -117,15 +117,16 @@ public class WebDevicesFragment extends Fragment {
             tr.setPadding(padding, padding, padding, padding);
 
             TextView tvNome = new TextView(getActivity());
-            tvNome.setText(d.getName());
-            tvNome.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 2f));
+            tvNome.setText(d.getName());TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 2f);
+            lp.topMargin = 50;
+            tvNome.setLayoutParams(lp);
             tvNome.setTextSize(15);
             tvNome.setTextAppearance(this.getContext(), R.style.Widget_AppCompat_TextView_SpinnerItem);
             tr.addView(tvNome);
 
             //create the button
             final TurnDeviceImageButton imgBtnTurnDevice = new TurnDeviceImageButton(getActivity(), d);
-            imgBtnTurnDevice.setImageResource(R.drawable.button_off);
+            imgBtnTurnDevice.setImageResource(R.drawable.turn_off);
             imgBtnTurnDevice.setId(d.getId());
             int size = (int) this.getResources().getDimension(R.dimen.dimen_turn_button_in_dp);
             imgBtnTurnDevice.setLayoutParams(new TableRow.LayoutParams(size, size));
@@ -145,7 +146,12 @@ public class WebDevicesFragment extends Fragment {
             });
             tr.addView(imgBtnTurnDevice);
 
+            View hLine = new View(getActivity());
+            hLine.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
+            hLine.setBackgroundColor(Color.BLACK);
+
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+            tl.addView(hLine);
         }
     }
 
@@ -154,10 +160,10 @@ public class WebDevicesFragment extends Fragment {
         parameters.add(new Pair<>("ON", String.valueOf(device.isOn())));
         //update button
         if (imgBtnTurnDeviceAux.getDevice().isOn()) {
-            imgBtnTurnDeviceAux.setImageResource(R.drawable.button_off);
+            imgBtnTurnDeviceAux.setImageResource(R.drawable.turn_off);
             imgBtnTurnDeviceAux.getDevice().setOn(false);
         } else {
-            imgBtnTurnDeviceAux.setImageResource(R.drawable.button_on);
+            imgBtnTurnDeviceAux.setImageResource(R.drawable.turn_on);
             imgBtnTurnDeviceAux.getDevice().setOn(true);
         }
 

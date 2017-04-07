@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Gravity;
@@ -68,10 +69,7 @@ public class DevicesFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_devices, container, false);
         //Event of the button that adds a new device
-        final ImageButton addButton = (ImageButton) view.findViewById(R.id.btn_add_device);
-        addButton.setScaleType(ImageView.ScaleType.CENTER);
-        addButton.setAdjustViewBounds(true);
-        addButton.setBackgroundColor(Color.TRANSPARENT);
+        final FloatingActionButton addButton = (FloatingActionButton) view.findViewById(R.id.btn_add_device);
         addButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), AddDeviceActivity.class);
@@ -87,7 +85,12 @@ public class DevicesFragment extends Fragment {
     private void loadDeviceList(View view){
 
         //Load the list of devices
-        List<Device> devices = DeviceDAO.selectAllDevices(dbHelper);
+        //List<Device> devices = DeviceDAO.selectAllDevices(dbHelper);
+        List<Device> devices = new LinkedList<>();
+        devices.add(new Device("Cafeteira", 1, null, false));
+        devices.add(new Device("Geladeira", 2, null, false));
+        devices.add(new Device("Televisão", 3, null, false));
+        devices.add(new Device("Torradeira", 4, null, false));
         TableLayout tl = (TableLayout) view.findViewById(R.id.table_devices);
         for (Device d : devices) {
 
@@ -99,14 +102,17 @@ public class DevicesFragment extends Fragment {
 
             TextView tvNome = new TextView(getActivity());
             tvNome.setText(d.getName());
-            tvNome.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 2f));
+            TableRow.LayoutParams lp = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 2f);
+            lp.topMargin = 50;
+            tvNome.setLayoutParams(lp);
             tvNome.setTextSize(15);
             tvNome.setTextAppearance(this.getContext(), R.style.Widget_AppCompat_TextView_SpinnerItem);
+
             tr.addView(tvNome);
 
             //create the button
             final TurnDeviceImageButton imgBtnTurnDevice = new TurnDeviceImageButton(getActivity(), d);
-            imgBtnTurnDevice.setImageResource(R.drawable.button_off);
+            imgBtnTurnDevice.setImageResource(R.drawable.turn_off);
             imgBtnTurnDevice.setId(d.getId());
             int size = (int) this.getResources().getDimension(R.dimen.dimen_turn_button_in_dp);
             imgBtnTurnDevice.setLayoutParams(new TableRow.LayoutParams(size, size));
@@ -126,7 +132,12 @@ public class DevicesFragment extends Fragment {
             });
             tr.addView(imgBtnTurnDevice);
 
+            View hLine = new View(getActivity());
+            hLine.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, 1));
+            hLine.setBackgroundColor(Color.BLACK);
+
             tl.addView(tr, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+            tl.addView(hLine);
         }
     }
 
@@ -143,10 +154,10 @@ public class DevicesFragment extends Fragment {
         Log.d("turndevice", response);
         if(ok){
             if(imgBtnTurnDeviceAux.getDevice().isOn()){
-                imgBtnTurnDeviceAux.setImageResource(R.drawable.button_off);
+                imgBtnTurnDeviceAux.setImageResource(R.drawable.turn_off);
                 imgBtnTurnDeviceAux.getDevice().setOn(false);
             }else{
-                imgBtnTurnDeviceAux.setImageResource(R.drawable.button_on);
+                imgBtnTurnDeviceAux.setImageResource(R.drawable.turn_on);
                 imgBtnTurnDeviceAux.getDevice().setOn(true);
             }
         }else{

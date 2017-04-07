@@ -18,7 +18,7 @@ public class Device {
     private Calendar lastTimeoff;*/
     private String name;
 
-    public Device(String nome, int id, String ip, boolean on, Calendar lastTimeon, Calendar lastTimeoff) {
+    public Device(String nome, int id, String ip, boolean on) {
         this.name = nome;
         this.id_device = id;
         this.ip = ip;

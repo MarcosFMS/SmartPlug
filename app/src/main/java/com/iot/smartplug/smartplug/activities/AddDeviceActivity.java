@@ -2,6 +2,7 @@ package com.iot.smartplug.smartplug.activities;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,8 +39,8 @@ public class AddDeviceActivity extends AppCompatActivity {
     private SmartplugDbHelper dbHelper;
 
     PopupWindow popup;
-    Button btnFinish;
-    Button btnRegister;
+    FloatingActionButton btnFinish;
+    FloatingActionButton btnRegister;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,18 +56,17 @@ public class AddDeviceActivity extends AppCompatActivity {
 
         //setup actions of the buttons
         //Event of the button that sends ssid and password to the device
-        btnRegister = (Button) findViewById(R.id.btn_register);
+        btnRegister = (FloatingActionButton) findViewById(R.id.btn_register);
         btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 deviceName = ((EditText) findViewById(R.id.edtxt_name)).getText().toString();
                 EditText edtxtSsid = (EditText) findViewById(R.id.edtxt_ssid);
                 EditText edtxtPassword = (EditText) findViewById(R.id.edtxt_senha);
                 sendWIFIData(edtxtSsid.getText().toString(), edtxtPassword.getText().toString());
-
                 v.setEnabled(false);
             }
         });
-        btnFinish = (Button) findViewById(R.id.btn_finish);
+        btnFinish = (FloatingActionButton) findViewById(R.id.btn_finish);
         btnFinish.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 getDeviceWifiIp();
@@ -79,9 +79,10 @@ public class AddDeviceActivity extends AppCompatActivity {
         Toast t;
         if (ok) {
 
+            btnRegister.setVisibility(View.INVISIBLE);
             Log.d("Response", "Chegou!");
             deviceId = Integer.parseInt(response);//id of the device
-            Device d = new Device(deviceName, deviceId, null, false, null, null);
+            Device d = new Device(deviceName, deviceId, null, false);
             addDevice(d);
             t = Toast.makeText(getApplicationContext(), "Response = " + deviceId, Toast.LENGTH_SHORT);
             btnFinish.setVisibility(View.VISIBLE);
@@ -90,7 +91,7 @@ public class AddDeviceActivity extends AppCompatActivity {
             btnRegister.setEnabled(true);
             t = Toast.makeText(getApplicationContext(), "Erro ao enviar dados!", Toast.LENGTH_SHORT);
         }
-        Log.d("Response", response);
+        Log.d("Response", response+"");
         t.show();
     }
 
@@ -98,14 +99,14 @@ public class AddDeviceActivity extends AppCompatActivity {
         Toast t;
         if (ok) {
             deviceWifiIp = response;//ip wifi gets when connected to wifi
-            Device d = new Device(deviceName, deviceId, deviceWifiIp, false, null, null);
+            Device d = new Device(deviceName, deviceId, deviceWifiIp, false);
             updateDevice(d);
             t = Toast.makeText(getApplicationContext(), "Response = " + deviceId, Toast.LENGTH_SHORT);
             reloadDevicesActivity();
         } else {
             t = Toast.makeText(getApplicationContext(), "Erro ao enviar dados!", Toast.LENGTH_SHORT);
         }
-        Log.d("Response", response);
+        Log.d("Response", response+"");
         t.show();
     }
 

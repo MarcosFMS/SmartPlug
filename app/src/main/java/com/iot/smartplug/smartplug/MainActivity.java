@@ -83,8 +83,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new DevicesFragment(), "Dispositivos");
-        adapter.addFragment(new WebDevicesFragment(), "TWO");
-        adapter.addFragment(new ThreeFragment(), "THREE");
+        adapter.addFragment(new WebDevicesFragment(), "Dispositivos WEB");
         viewPager.setAdapter(adapter);
     }
 

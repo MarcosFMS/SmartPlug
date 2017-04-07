@@ -22,17 +22,18 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <Button
-        android:text="Cadastrar"
+    <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/btn_register"
         android:layout_below="@+id/sp_devices"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        app:backgroundTint="@color/colorPrimary"
+        app:srcCompat="@drawable/ic_add"/>
 
     <Spinner
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:id="@+id/sp_devices"
         android:layout_below="@+id/appBarLayout"
         android:layout_alignParentStart="true"

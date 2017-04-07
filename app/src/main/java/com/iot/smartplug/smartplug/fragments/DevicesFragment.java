@@ -85,12 +85,12 @@ public class DevicesFragment extends Fragment {
     private void loadDeviceList(View view){
 
         //Load the list of devices
-        //List<Device> devices = DeviceDAO.selectAllDevices(dbHelper);
-        List<Device> devices = new LinkedList<>();
+        List<Device> devices = DeviceDAO.selectAllDevices(dbHelper);
+        /*List<Device> devices = new LinkedList<>();
         devices.add(new Device("Cafeteira", 1, null, false));
         devices.add(new Device("Geladeira", 2, null, false));
         devices.add(new Device("Televisão", 3, null, false));
-        devices.add(new Device("Torradeira", 4, null, false));
+        devices.add(new Device("Torradeira", 4, null, false));*/
         TableLayout tl = (TableLayout) view.findViewById(R.id.table_devices);
         for (Device d : devices) {
 
